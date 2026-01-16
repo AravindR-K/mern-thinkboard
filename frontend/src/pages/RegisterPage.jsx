@@ -3,8 +3,13 @@ import { Link, useNavigate } from "react-router";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
 
-const LoginPage = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
+const RegisterPage = () => {
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -14,21 +19,25 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      toast.success("Login successful");
-      navigate("/");
+      await api.post("/auth/register", form);
+      toast.success("Registration successful. Please login.");
+      navigate("/login");
     } catch (err) {
-      toast.error("Invalid credentials");
+      toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
       <form className="card bg-base-100 p-6 w-96" onSubmit={handleSubmit}>
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-4">Register</h2>
 
+        <input
+          name="username"
+          placeholder="Username"
+          className="input input-bordered mb-3"
+          onChange={handleChange}
+        />
         <input
           name="email"
           type="email"
@@ -44,14 +53,14 @@ const LoginPage = () => {
           onChange={handleChange}
         />
 
-        <button className="btn btn-primary w-full">Login</button>
+        <button className="btn btn-primary w-full">Register</button>
 
         <p className="text-sm mt-3 text-center">
-          No account? <Link to="/register" className="link">Register</Link>
+          Already have an account? <Link to="/login" className="link">Login</Link>
         </p>
       </form>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
