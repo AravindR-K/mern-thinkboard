@@ -5,6 +5,7 @@ import CreatePage from "./pages/CreatePage";
 import NoteDetailPage from "./pages/NoteDetailPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
@@ -12,9 +13,9 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/" element={<HomePage />} />
-        <Route path="/create" element={<CreatePage />} />
-        <Route path="/note/:id" element={<NoteDetailPage />} />
+        <Route path="/" element={ <ProtectedRoute> <HomePage /> </ProtectedRoute >}/>
+        <Route path="/create" element={<ProtectedRoute> <CreatePage /> </ProtectedRoute >}/>
+        <Route path="/note/:id" element={<ProtectedRoute> <NoteDetailPage /> </ProtectedRoute >}/>
       </Routes>
     </div>
   );
