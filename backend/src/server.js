@@ -31,6 +31,7 @@ app.use(rateLimiter);
 //   next();
 // });
 
+
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", notesRoutes);
 

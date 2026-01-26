@@ -1,5 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { sendOTPEmail } from "../utils/sendEmail.js"
 import jwt from "jsonwebtoken";
 
 // REGISTER
@@ -36,6 +38,8 @@ export const registerUser = async (req, res) => {
 
 // LOGIN
 export const loginUser = async (req, res) => {
+  console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
   try {
     const { email, password } = req.body;
 
@@ -48,23 +52,64 @@ export const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+    // 🔐 Generate OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+    await sendOTPEmail(user.email, otp);
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    await user.save();   // 🔴 THIS WAS MISSING
 
+    console.log("OTP (debug):", otp);
+
+    res.status(200).json({
+      message: "OTP sent to email",
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  try {
+    const { userId, otp } = req.body;
+
+    const user = await User.findById(userId);
+
+    // 🔐 OTP VALIDATION
+    if (
+      !user ||
+      user.otp !== String(otp) ||
+      user.otpExpires < Date.now()
+    ) {
+      return res.status(401).json({ message: "Invalid or expired OTP" });
+    }
+
+    // 🔐 CLEAR OTP
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    // 🔐 GENERATE JWT
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({
+    // 🔐 SEND RESPONSE (THIS WAS MISSING / BROKEN)
+    return res.status(200).json({
       token,
       user: {
         id: user._id,
-        username: user.username,
         email: user.email,
+        username: user.username,
       },
     });
+
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("VERIFY OTP ERROR:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

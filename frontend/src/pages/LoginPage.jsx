@@ -10,19 +10,22 @@ const LoginPage = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      toast.success("Login successful");
-      navigate("/");
-    } catch (err) {
-      toast.error("Invalid credentials");
-    }
-  };
+  try {
+    const res = await api.post("/auth/login", form);
+
+    toast.success("OTP sent to your email");
+
+    navigate("/verify-otp", {
+      state: { userId: res.data.userId },
+    });
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Invalid credentials");
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
