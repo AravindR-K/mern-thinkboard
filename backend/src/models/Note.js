@@ -8,6 +8,9 @@ const noteSchema = new mongoose.Schema({
   encryptedContent: String,
   iv: String,
   authTag: String,
+  signature: {
+    type: String,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

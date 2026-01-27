@@ -1,4 +1,5 @@
 import Note from "../models/Note.js";
+import { signData, verifySignature } from "../utils/signatureUtils.js";
 import { deriveKey, encrypt, decrypt } from "../utils/cryptoUtils.js";
 
 /**
@@ -48,7 +49,10 @@ export async function getNoteById(req, res) {
     if (!note) {
       return res.status(404).json({ message: "Note not found or unauthorized" });
     }
-
+    const isValid = verifySignature(decryptedContent, note.signature);
+    if (!isValid) {
+      return res.status(400).json({ message: "Note integrity compromised" });
+    }
     const key = deriveKey(req.user.passwordHash, req.user.id);
 
     const decryptedContent = decrypt(
@@ -80,15 +84,15 @@ export async function createNote(req, res) {
 
     const key = deriveKey(req.user.passwordHash, req.user.id);
     const { encryptedData, iv, authTag } = encrypt(content, key);
-
+    const signature = signData(content);
     const note = new Note({
       title,
-      encryptedContent: encryptedData,
+      encryptedContent,
       iv,
       authTag,
+      signature,
       user: req.user.id,
     });
-
     const savedNote = await note.save();
 
     res.status(201).json({
