@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
@@ -11,7 +10,6 @@ const NoteDetailPage = () => {
   const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();
-
   const { id } = useParams();
 
   useEffect(() => {
@@ -22,6 +20,7 @@ const NoteDetailPage = () => {
       } catch (error) {
         console.log("Error in fetching note", error);
         toast.error("Failed to fetch the note");
+        setNote(null);
       } finally {
         setLoading(false);
       }
@@ -50,7 +49,6 @@ const NoteDetailPage = () => {
     }
 
     setSaving(true);
-
     try {
       await api.put(`/notes/${id}`, note);
       toast.success("Note updated successfully");
@@ -63,10 +61,20 @@ const NoteDetailPage = () => {
     }
   };
 
+  // 🔄 Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <LoaderIcon className="animate-spin size-10" />
+      </div>
+    );
+  }
+
+  // 🛡️ NULL GUARD (THIS IS THE FIX)
+  if (!note) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <p className="text-error text-lg">Failed to load note</p>
       </div>
     );
   }
@@ -94,10 +102,11 @@ const NoteDetailPage = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Note title"
                   className="input input-bordered"
                   value={note.title}
-                  onChange={(e) => setNote({ ...note, title: e.target.value })}
+                  onChange={(e) =>
+                    setNote({ ...note, title: e.target.value })
+                  }
                 />
               </div>
 
@@ -106,15 +115,20 @@ const NoteDetailPage = () => {
                   <span className="label-text">Content</span>
                 </label>
                 <textarea
-                  placeholder="Write your note here..."
                   className="textarea textarea-bordered h-32"
                   value={note.content}
-                  onChange={(e) => setNote({ ...note, content: e.target.value })}
+                  onChange={(e) =>
+                    setNote({ ...note, content: e.target.value })
+                  }
                 />
               </div>
 
               <div className="card-actions justify-end">
-                <button className="btn btn-primary" disabled={saving} onClick={handleSave}>
+                <button
+                  className="btn btn-primary"
+                  disabled={saving}
+                  onClick={handleSave}
+                >
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
@@ -125,4 +139,5 @@ const NoteDetailPage = () => {
     </div>
   );
 };
+
 export default NoteDetailPage;

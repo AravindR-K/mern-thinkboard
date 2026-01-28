@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-// Generate key pair (for lab/demo)
+// Generate key pair 
 export const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
   modulusLength: 2048,
 });

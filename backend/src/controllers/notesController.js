@@ -49,12 +49,11 @@ export async function getNoteById(req, res) {
     if (!note) {
       return res.status(404).json({ message: "Note not found or unauthorized" });
     }
-    const isValid = verifySignature(decryptedContent, note.signature);
-    if (!isValid) {
-      return res.status(400).json({ message: "Note integrity compromised" });
-    }
+
+    // 🔑 Step 1: derive key
     const key = deriveKey(req.user.passwordHash, req.user.id);
 
+    // 🔓 Step 2: decrypt content
     const decryptedContent = decrypt(
       note.encryptedContent,
       key,
@@ -62,6 +61,13 @@ export async function getNoteById(req, res) {
       note.authTag
     );
 
+    // ✍️ Step 3: verify digital signature
+    const isValid = verifySignature(decryptedContent, note.signature);
+    if (!isValid) {
+      return res.status(400).json({ message: "Note integrity compromised" });
+    }
+
+    // ✅ Step 4: send response
     res.status(200).json({
       _id: note._id,
       title: note.title,
@@ -75,6 +81,7 @@ export async function getNoteById(req, res) {
   }
 }
 
+
 /**
  * CREATE NOTE (Encrypt before saving)
  */
@@ -87,7 +94,7 @@ export async function createNote(req, res) {
     const signature = signData(content);
     const note = new Note({
       title,
-      encryptedContent,
+      encryptedContent : encryptedData,
       iv,
       authTag,
       signature,
@@ -127,10 +134,14 @@ export async function updateNote(req, res) {
     const key = deriveKey(req.user.passwordHash, req.user.id);
     const { encryptedData, iv, authTag } = encrypt(content, key);
 
+    // 🔐 RE-SIGN updated content
+    const signature = signData(content);
+
     note.title = title;
     note.encryptedContent = encryptedData;
     note.iv = iv;
     note.authTag = authTag;
+    note.signature = signature;
 
     const updatedNote = await note.save();
 

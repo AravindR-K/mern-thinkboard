@@ -19,7 +19,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* App name */}
           <h1 className="text-3xl font-bold text-primary font-mono tracking-tight">
-            ThinkBoard
+            Secure Notes 
           </h1>
 
           <div className="flex items-center gap-4">
