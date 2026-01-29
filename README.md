@@ -77,14 +77,7 @@ The project demonstrates **authentication, authorization, encryption, hashing, d
 ## 🔐 Cryptography Workflow
 
 ### Encryption
-Plaintext
-↓
-PBKDF2 (password hash + userId)
-↓
-AES-256-GCM
-↓
-Ciphertext + IV + AuthTag
-
+Plaintext -> PBKDF2 (password hash + userId) -> AES-256-GCM -> Ciphertext + IV + AuthTag
 
 ---
 
