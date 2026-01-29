@@ -56,35 +56,6 @@ The project demonstrates **authentication, authorization, encryption, hashing, d
 - bcrypt (Password Hashing)
 - RSA + SHA-256 (Digital Signatures)
 
----
-
-## 📂 Project Structure
-
-mern-thinkboard/
-│
-├── backend/
-│ ├── src/
-│ │ ├── controllers/
-│ │ ├── models/
-│ │ ├── routes/
-│ │ ├── middleware/
-│ │ ├── utils/
-│ │ └── server.js
-│ └── .env
-│
-├── frontend/
-│ ├── src/
-│ │ ├── pages/
-│ │ ├── components/
-│ │ ├── lib/
-│ │ └── main.jsx
-│ └── index.html
-│
-└── README.md
-
-
-
----
 
 ## 🔄 Application Flow
 
@@ -135,6 +106,7 @@ UPSTASH_REDIS_REST_URL=your_upstash_url
 UPSTASH_REDIS_REST_TOKEN=your_upstash_token
 
 NODE_ENV=development
+```
 
 ▶️ Running the Project
 Backend
